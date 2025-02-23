@@ -1,19 +1,26 @@
-# Gmail-to-Google-Sheet-Automation
+Gmail & Address Automation with Google Sheets
+This project automates two key functions using Google Apps Script:
 
-This project automates fetching specific emails from Gmail to a Google Sheet. It captures details such as the subject, sender, reply-to address, and a snippet of each email. The script also supports scheduled triggers to check for new emails regularly.
+Fetching Emails from Gmail to Google Sheets
 
-## Features
-- Fetches emails from a specific sender (`notify@payments.interac.ca`).
-- Avoids duplicate entries by tracking message IDs.
-- Supports scheduled triggers for automatic fetching.
+Captures details such as subject, sender, reply-to address, date, and a snippet of each email.
+Avoids duplicates by tracking message IDs.
+Supports scheduled triggers for automatic fetching.
+Generating Address Labels in Google Sheets
 
-## Prerequisites
-- Google Account with access to Gmail and Google Sheets.
-- Basic familiarity with Google Apps Script.
+Creates new sheets from a template based on address data.
+Filters addresses where labels are marked as "Yes" and auto-fills relevant fields.
+Features
+Gmail to Google Sheets
+✅ Fetches emails from notify@payments.interac.ca.
+✅ Skips already logged emails to prevent duplication.
+✅ Can run on an automated schedule via triggers.
 
-## Setup
-1. **Create a Google Sheet**: Set up columns for `Message ID`, `Subject`, `From`, `Reply-To`, `Date`, `Snippet`, `Assigned`, and `Status`.
-2. **Add Google Apps Script**: Copy the code from `src/Code.gs` into your Google Sheet's Apps Script editor.
-3. **Schedule Trigger**: Set up a time-driven trigger to automate fetching emails.
+Address Label Creation
+✅ Extracts address data from the "Addresses" sheet.
+✅ Copies a predefined template for each new label.
+✅ Automatically fills in name, street, city, province, and postal code.
 
-For detailed setup instructions, see [docs/Setup_Instructions.md](docs/Setup_Instructions.md).
+Prerequisites
+Google Account with access to Gmail and Google Sheets.
+Basic familiarity with Google Apps Script.
