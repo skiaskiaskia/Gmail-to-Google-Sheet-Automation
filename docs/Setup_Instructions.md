@@ -6,8 +6,7 @@ Create the following sheets:
 "Sheet1" → Used for logging Interac emails.
 "Addresses" → Stores addresses for label creation.
 "template" → Used as a template for generating labels.
-
-In Sheet1,
+In Sheet1, label the columns as follows (Row 1):
 Message ID | Subject | From | Reply-To | Date | Snippet | Assigned | Status  
 In Addresses, ensure columns B–J contain name, address, and other details. Column K should be labeled "Label Needed", with "Yes" marking rows that need a label.
 Step 2: Add Google Apps Script
