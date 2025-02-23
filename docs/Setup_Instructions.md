@@ -1,30 +1,26 @@
-# Setup Instructions
+Gmail & Address Automation with Google Sheets
+This project automates two key functions using Google Apps Script:
 
-Follow these steps to set up the Gmail-to-Google-Sheet automation.
+Fetching Emails from Gmail to Google Sheets
 
-## Step 1: Set Up the Google Sheet
-1. Open Google Sheets and create a new spreadsheet.
-2. Name the sheet (e.g., "Interac Emails").
-3. Label columns as follows in **Row 1**:
-   - `Message ID`, `Subject`, `From`, `Reply-To`, `Date`, `Snippet`, `Assigned`, `Status`
+Captures details such as subject, sender, reply-to address, date, and a snippet of each email.
+Avoids duplicates by tracking message IDs.
+Supports scheduled triggers for automatic fetching.
+Generating Address Labels in Google Sheets
 
-## Step 2: Add Google Apps Script
-1. In your Google Sheet, go to **Extensions > Apps Script**.
-2. Delete any default code and copy the contents of `src/Code.gs` into the editor.
-3. Save the script (e.g., "Gmail Fetch Script").
+Creates new sheets from a template based on address data.
+Filters addresses where labels are marked as "Yes" and auto-fills relevant fields.
+Features
+Gmail to Google Sheets
+✅ Fetches emails from notify@payments.interac.ca.
+✅ Skips already logged emails to prevent duplication.
+✅ Can run on an automated schedule via triggers.
 
-## Step 3: Set Up Triggers
-1. In the Apps Script editor, click on the **Triggers** icon (clock icon).
-2. Click **+ Add Trigger**.
-3. Configure the trigger:
-   - **Function to run**: `fetchInteracEmailsToSheet`
-   - **Event source**: Time-driven
-   - **Type of time-based trigger**: Choose `Hourly` (or adjust to your preference).
+Address Label Creation
+✅ Extracts address data from the "Addresses" sheet.
+✅ Copies a predefined template for each new label.
+✅ Automatically fills in name, street, city, province, and postal code.
 
-## Step 4: Test the Script
-1. Return to your sheet and run the script manually from **Run > fetchInteracEmailsToSheet** to check if emails populate the sheet correctly.
-2. If successful, the scheduled trigger will continue to run based on your configuration.
-
-## Notes
-- To avoid exceeding Gmail quotas, limit the script frequency if high email volume is expected.
-- The script appends only new, unlogged emails based on unique message IDs.
+Prerequisites
+Google Account with access to Gmail and Google Sheets.
+Basic familiarity with Google Apps Script.
