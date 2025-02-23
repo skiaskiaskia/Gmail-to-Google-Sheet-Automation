@@ -1,50 +1,94 @@
+/****************************************
+ * FETCH NON-EPHEMERAL INTERAC EMAILS
+ *
+ * This function retrieves threads from Gmail 
+ * matching certain criteria (e.g., from Interac),
+ * then appends new messages to "Sheet1" 
+ * WITHOUT ever removing previously written rows.
+ * 
+ * Once a message is appended, it stays in 
+ * the sheet permanently.
+ ****************************************/
 function fetchInteracEmailsToSheet() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
 
-  // Check if the sheet is empty by looking at the last row
+  /*******************************************************
+   * 1) Read existing message IDs from Sheet1 (Column A)
+   *    so we don't insert duplicates each time we run.
+   ********************************************************/
   const lastRow = sheet.getLastRow();
-  const existingIds = lastRow > 1 
-    ? sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat() 
-    : []; // If the sheet is empty, start with an empty array for IDs
-  
-  const batchSize = 20; // Number of threads per batch to avoid time limits
+  const existingIds =
+    lastRow > 1
+      ? sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat()
+      : [];
+
+  /********************************************************
+   * 2) Define our search query to filter relevant emails.
+   *    Example:
+   *      - from:notify@payments.interac.ca    (Interac)
+   *      - in:inbox                           (Inbox only)
+   *      - is:important                       (Flagged as important)
+   *      - -subject:"to SIAMAK KIANI"         (Exclude certain subject)
+   *      - newer_than:21d                    (Within last 3 weeks)
+   ********************************************************/
+  const query = 
+    "from:notify@payments.interac.ca in:inbox is:important -subject:'to SIAMAK KIANI' newer_than:21d";
+
+  /********************************************************
+   * 3) We fetch threads in batches to avoid time limits.
+   *    For each batch of 20 threads, we process them.
+   ********************************************************/
+  const batchSize = 20;
   let startIndex = 0;
   let hasMoreEmails = true;
 
   while (hasMoreEmails) {
-    const threads = GmailApp.search("from:notify@payments.interac.ca", startIndex, batchSize); // Fetch batch of threads
-
+    // Fetch a batch of threads based on our query
+    const threads = GmailApp.search(query, startIndex, batchSize);
+    
     if (threads.length === 0) {
-      hasMoreEmails = false; // Stop if no more threads are found
+      hasMoreEmails = false; // No more matching threads
     } else {
+      /*******************************************************
+       * 4) For each thread, retrieve the individual messages
+       *    and append any new ones to Sheet1.
+       *******************************************************/
       threads.forEach(thread => {
         const messages = thread.getMessages();
         messages.forEach(message => {
           const messageId = message.getId();
 
-          if (!existingIds.includes(messageId)) { // Check if the message ID is already in the sheet
-            const subject = message.getSubject() || ""; // Email subject
-            const from = message.getFrom() || ""; // Sender's email address
-            const replyTo = message.getReplyTo() || ""; // Reply-To field (if available)
-            const date = message.getDate() || ""; // Date the email was received
-            const snippet = message.getPlainBody().substring(0, 100) || ""; // Email body snippet (first 100 characters)
-            
-            const row = [
-              messageId,  // Unique message ID
-              subject,    // Subject of the email
-              from,       // From field (sender)
-              replyTo,    // Reply-To field (if available)
-              date,       // Date of the email
-              snippet,    // Snippet of the email body
-              "",         // Placeholder for Assigned column
-              "Pending"   // Placeholder for Status column
-            ];
-            sheet.appendRow(row);
+          // Skip if we've already stored this message ID
+          if (existingIds.includes(messageId)) {
+            return;
           }
+
+          // Gather info
+          const subject  = message.getSubject()     || "";
+          const from     = message.getFrom()        || "";
+          const replyTo  = message.getReplyTo()     || "";
+          const date     = message.getDate()        || "";
+          const snippet  = (message.getPlainBody()  || "").substring(0, 100);
+
+          // Append a new row with this message's details
+          sheet.appendRow([
+            messageId,   // Column A: unique Gmail message ID
+            subject,     // Column B: subject
+            from,        // Column C: from address
+            replyTo,     // Column D: reply-to address
+            date,        // Column E: date
+            snippet,     // Column F: snippet (first 100 chars)
+            "",          // Column G: placeholder for "Assigned"
+            "Pending"    // Column H: placeholder for "Status"
+          ]);
+
+          // Add this ID to our local array to avoid duplicates
+          existingIds.push(messageId);
         });
       });
 
-      startIndex += batchSize; // Move to the next batch of emails
+      // Increase startIndex to move to next batch of threads
+      startIndex += batchSize;
     }
   }
 }
